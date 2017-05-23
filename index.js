@@ -1,7 +1,10 @@
 'use strict';
 
 const HistoryOfPhilanthropy = ( function() {
-	const path = 'http://gwalumni.org/projects/history-of-philanthropy/';
+	//const path = 'http://gwalumni.org/projects/history-of-philanthropy/';
+	const path = '';
+	let currentEntryId;
+	let entryIds = [];
 	let initialized;
 	let $;
 	let $container;
@@ -49,7 +52,7 @@ const HistoryOfPhilanthropy = ( function() {
 				.then( () => {
 					$timelineEntries = $( '#timeline-entries' );
 					_attachEventHandlers();
-					return _loadHtml( $timelineEntries, path + 'timeline-gw.html' );
+					return _loadTimelineEntries();
 				} )
 				.then( () => {
 					$( window ).trigger( 'resize' );
@@ -60,11 +63,58 @@ const HistoryOfPhilanthropy = ( function() {
 		}
 	}
 
+	function scrollToEntry( entryId ) {
+		if ( entryId === currentEntryId ) {
+			return;
+		}
+
+		console.log( 'scrolling to entryId', entryId );
+	}
+
+	function scrollInDirection( direction ) {
+		let newEntryId;
+
+		direction = direction || 'forward';
+
+		if ( entryIds <= 1 ) {
+			return;
+		}
+
+		if ( ! currentEntryId ) {
+			currentEntryId = entryIds[0];
+		}
+
+		const currentEntryIndex = entryIds.indexOf( currentEntryId );
+		if ( 
+			direction === 'forward' && 
+			currentEntryIndex < entryIds.length - 1 ) {
+			newEntryId = entryIds[currentEntryIndex + 1];
+		} else if (
+			direction === 'backward' &&
+			currentEntryIndex > 0 ) {
+			newEntryId = entryIds[currentEntryIndex - 1];
+		}
+
+		if ( newEntryId ) {
+			scrollToEntry( newEntryId );
+		}
+	}
+
 	function _attachEventHandlers() {
 		$( window )
 			.on( 'resize', () => {
 				adjustLayout();
 			} );
+
+		$( '#scroll-down' ).on( 'click', ( e ) => {
+			e.preventDefault();
+			scrollInDirection( 'forward' );
+		} );
+
+		$( '#scroll-up' ).on( 'click', ( e ) => {
+			e.preventDefault();
+			scrollInDirection( 'backward' );
+		} );
 	}
 
 	function _handleError( error ) {
@@ -92,6 +142,22 @@ const HistoryOfPhilanthropy = ( function() {
 			} );
 		} );
 	}
+
+	function _loadTimelineEntries() {
+		return new Promise( ( resolve, reject ) => {
+			_loadHtml( $timelineEntries, path + 'timeline-gw.html' )
+				.then( () => {
+					entryIds = [];
+					$timelineEntries.children( 'li' ).each( ( i, el ) => {
+						entryIds.push( $( el ).attr( 'id' ) );
+					} );
+					console.log( 'entry ids', entryIds );
+					resolve();
+				} )
+				.catch( reject );
+		} );
+	}
+
 
 	return {
 		init : init,

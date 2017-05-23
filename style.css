@@ -1,12 +1,22 @@
-#history-of-philanthropy {
-	font-family : sans-serif;
-	position : relative;
+#history-of-philanthropy button,
+#history-of-philanthropy header,
+#history-of-philanthropy li,
+#history-of-philanthropy ul {
+	box-sizing : border-box;
 }
 
-#history-of-philanthropy:before {
-	content : '';
-	display : block;
-	padding-top : 75%;
+.aural {
+	height : 1px;
+	left : -9999px;
+	overflow : hidden;
+	position : absolute;
+	top : -9999px;
+	width : 1px;
+}
+
+#history-of-philanthropy {
+	font-family : sans-serif;
+	max-width : 40em;
 }
 
 #history-of-philanthropy-container {
@@ -18,12 +28,6 @@
 	top : 0;
 }
 
-#history-of-philanthropy header,
-#history-of-philanthropy li,
-#history-of-philanthropy ul {
-	box-sizing : border-box;
-}
-
 #history-of-philanthropy header {
 	background-color : #000;
 	color : #e64343;
@@ -31,24 +35,94 @@
 }
 
 #history-of-philanthropy h1 {
-	font-size : 1.75em;
+	font-size : 1em;
 	margin : 0;
 	text-transform : uppercase;
+}
+
+.scroll-button {
+	background-color : transparent;
+	background-position : center center;
+	background-repeat : no-repeat;
+	background-size : contain;
+	border : 0;
+	cursor : pointer;
+	display : block;
+	font-size : 1em;
+	height : 3em;
+	outline : 0;
+	width : 2.5em;
+}
+
+#scroll-down {
+	background-image : url( 'circled-arrow-down.png' );
+}
+
+#scroll-up {
+	background-image : url( 'circled-arrow-up.png' );
 }
 
 #timeline-title {
 	color : #fff;
 	display : block;
-	font-size : 1.25em;
+	font-size : 1.15em;
+}
+
+#timeline-entries-container {
+	background-color : #222;
+	border : .1em solid #ff0000; /* remove */
+	position : relative;
+}
+
+#timeline-entries-container:before {
+	content : '';
+	display : block;
+	padding-top : 60%;
 }
 
 #timeline-entries {
+	bottom : 0;
+	left : 0;
 	list-style-type : none;
 	margin : 0;
+	overflow : hidden;
 	padding : 0;
+	position : absolute;
+	right : 3em;
+	top : 0;
 }
 
 #timeline-entries > li {
 	background-position : center center;
 	background-size : cover;
+	height : 100%;
+}
+
+#timeline-entries ul {
+	list-style-type : none;
+	margin : 0;
+	padding : 0;
+}
+
+.timeline-entry-year {
+	color : #fff;
+	font-size : 1.25em;
+	padding : .25em .75em;
+}
+
+.timeline-entry-description {
+	background-color : rgba( 256, 256, 256, 0.6 );
+	font-size : .9em;
+	padding : .5em .75em;
+}
+
+#timeline-entries-scroll-controls {
+	bottom : 0;
+	display : flex;
+	flex-direction : column;
+	justify-content : center;
+	padding : 0 .2em;
+	position : absolute;
+	right : 0;
+	top : 0;
 }
