@@ -2,7 +2,9 @@
 
 const HistoryOfPhilanthropy = ( function() {
 	//const path = 'http://gwalumni.org/projects/history-of-philanthropy/';
-	const path = '';
+	//const path = '';
+	const path = 'https://growlfrequency.com/work/gw-history-of-philanthropy/';
+	const imagePath = 'http://gwalumni.org/projects/history-of-philanthropy/images/';
 	let currentEntryId;
 	let entryIds = [];
 	let initialized;
@@ -58,7 +60,7 @@ const HistoryOfPhilanthropy = ( function() {
 					$( window ).trigger( 'resize' );
 				} )
 				.catch( () => {
-					handleError( new Error( 'Error loading html.' ) );
+					_handleError( new Error( 'Error loading html.' ) );
 				} );
 		}
 	}
@@ -177,24 +179,39 @@ const HistoryOfPhilanthropy = ( function() {
 			.appendTo( 'head' );
 	}
 
-	function _loadHtml( thing, url ) {
+	function _loadHtml( thing, url, dataProcessor ) {
 		thing = typeof thing === 'string' ? $( thing ) : thing;
-		if ( ! thing.length ) {
-			_handleError(
-				new Error( 'Could not find thing.' )
-			);
-		}
 
-		return new Promise( ( resolve ) => {
+		return new Promise( ( resolve, reject ) => {
+			if ( ! thing.length ) {
+				return reject(
+					new Error( 'Could not find thing.' )
+				);
+			}
+			const frag = document.createDocumentFragment();
+			$.get( url, {}, ( data ) => {
+				if ( typeof dataProcessor === 'function' ) {
+					const div = document.createElement( 'div' );
+					div.innerHTML = data;
+					frag.appendChild( div );
+					dataProcessor( $( div ) );
+					thing.html( div.innerHTML );
+				} else {
+					thing.html( data );
+				}
+				resolve();
+			} );
+			/*
 			thing.load( url, () => {
 				resolve();
 			} );
+			*/
 		} );
 	}
 
 	function _loadTimelineEntries() {
 		return new Promise( ( resolve, reject ) => {
-			_loadHtml( $timelineEntries, path + 'timeline-gw.html' )
+			_loadHtml( $timelineEntries, path + 'timeline-gw.html', _processEntries )
 				.then( () => {
 					entryIds = [];
 					$timelineEntries.children( 'li' ).each( ( i, el ) => {
@@ -204,6 +221,16 @@ const HistoryOfPhilanthropy = ( function() {
 				} )
 				.catch( reject );
 		} );
+
+		function _processEntries( $html ) {
+			console.log( 'processing' );
+			$html.children( 'li' ).each( ( i, el ) => {
+				let bg;
+				bg = $( el ).css( 'background-image' );
+				bg = bg.replace( /images\//g, imagePath );
+				$( el ).css( 'background-image', bg );
+			} );
+		}
 	}
 
 

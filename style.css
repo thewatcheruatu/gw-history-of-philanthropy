@@ -1,8 +1,10 @@
 #history-of-philanthropy button,
 #history-of-philanthropy header,
+#history-of-philanthropy h1,
 #history-of-philanthropy li,
 #history-of-philanthropy ul {
 	box-sizing : border-box;
+	line-height : 1.5;
 }
 
 .aural {
@@ -22,11 +24,11 @@
 #history-of-philanthropy header {
 	background-color : #000;
 	border-bottom: .2em solid #fff;
-	color : #e64343;
 	padding : 1em 1.5em;
 }
 
 #timeline-heading {
+	color : #e64343;
 	font-size : 1em;
 	margin : 0;
 	text-transform : uppercase;
@@ -42,6 +44,7 @@
 	display : block;
 	font-size : 1em;
 	height : 2.5em;
+	margin : 0;
 	outline : 0;
 	width : 2.5em;
 }
