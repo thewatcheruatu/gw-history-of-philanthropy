@@ -1,0 +1,54 @@
+#history-of-philanthropy {
+	font-family : sans-serif;
+	position : relative;
+}
+
+#history-of-philanthropy:before {
+	content : '';
+	display : block;
+	padding-top : 75%;
+}
+
+#history-of-philanthropy-container {
+	border : .1em solid #ff0000;
+	bottom : 0;
+	left : 0;
+	position : absolute;
+	right : 0;
+	top : 0;
+}
+
+#history-of-philanthropy header,
+#history-of-philanthropy li,
+#history-of-philanthropy ul {
+	box-sizing : border-box;
+}
+
+#history-of-philanthropy header {
+	background-color : #000;
+	color : #e64343;
+	padding : 1em 1.5em;
+}
+
+#history-of-philanthropy h1 {
+	font-size : 1.75em;
+	margin : 0;
+	text-transform : uppercase;
+}
+
+#timeline-title {
+	color : #fff;
+	display : block;
+	font-size : 1.25em;
+}
+
+#timeline-entries {
+	list-style-type : none;
+	margin : 0;
+	padding : 0;
+}
+
+#timeline-entries > li {
+	background-position : center center;
+	background-size : cover;
+}
