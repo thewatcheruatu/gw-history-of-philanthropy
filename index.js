@@ -68,7 +68,54 @@ const HistoryOfPhilanthropy = ( function() {
 			return;
 		}
 
-		console.log( 'scrolling to entryId', entryId );
+		const $entry = $( '#' + entryId );
+		if ( ! $entry.length ) {
+			handleError(
+				new Error( 'Cannot scroll to invalid timeline entry.' )
+			);
+			return;
+		}
+		currentEntryId = entryId;
+		$timelineEntries.stop();
+
+		const entryIndex = entryIds.indexOf( entryId );
+		const entryPosition = $entry.position();
+		const scrollDuration = _calculateScrollDuration(
+			entryPosition.top - $timelineEntries.scrollTop()
+		);
+
+		if ( entryIndex === entryIds.length - 1 ) {
+			$( '#scroll-down' ).addClass( 'disabled' );
+		} else {
+			$( '#scroll-down' ).removeClass( 'disabled' );
+		}
+
+		if ( entryIndex === 0 ) {
+			$( '#scroll-up' ).addClass( 'disabled' );
+		} else {
+			$( '#scroll-up' ).removeClass( 'disabled' );
+		}
+
+		$timelineEntries.animate( {
+			scrollTop : Math.floor( entryPosition.top ),
+		}, scrollDuration );
+
+		function _calculateScrollDuration( pixelMoveAmount ) {
+			const e = Math.E;
+			const durationMax = 500;
+			const curveMidpoint = 300; 
+
+			pixelMoveAmount = Math.abs( pixelMoveAmount );
+			/*
+			 * Logistic function just to get a basic S curve
+			**/
+			return durationMax / 
+				( 1 + 
+					Math.pow( 
+					e, ( -.01 * ( pixelMoveAmount - curveMidpoint ) ) 
+					) 
+				);
+		}
 	}
 
 	function scrollInDirection( direction ) {
@@ -111,7 +158,7 @@ const HistoryOfPhilanthropy = ( function() {
 			scrollInDirection( 'forward' );
 		} );
 
-		$( '#scroll-up' ).on( 'click', ( e ) => {
+		$( '#scroll-up' ).not( '.disabled' ).on( 'click', ( e ) => {
 			e.preventDefault();
 			scrollInDirection( 'backward' );
 		} );
@@ -151,7 +198,6 @@ const HistoryOfPhilanthropy = ( function() {
 					$timelineEntries.children( 'li' ).each( ( i, el ) => {
 						entryIds.push( $( el ).attr( 'id' ) );
 					} );
-					console.log( 'entry ids', entryIds );
 					resolve();
 				} )
 				.catch( reject );

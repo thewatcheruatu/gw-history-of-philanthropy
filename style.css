@@ -16,25 +16,17 @@
 
 #history-of-philanthropy {
 	font-family : sans-serif;
-	max-width : 40em;
-}
-
-#history-of-philanthropy-container {
-	border : .1em solid #ff0000;
-	bottom : 0;
-	left : 0;
-	position : absolute;
-	right : 0;
-	top : 0;
+	max-width : 50em;
 }
 
 #history-of-philanthropy header {
 	background-color : #000;
+	border-bottom: .2em solid #fff;
 	color : #e64343;
 	padding : 1em 1.5em;
 }
 
-#history-of-philanthropy h1 {
+#timeline-heading {
 	font-size : 1em;
 	margin : 0;
 	text-transform : uppercase;
@@ -49,9 +41,13 @@
 	cursor : pointer;
 	display : block;
 	font-size : 1em;
-	height : 3em;
+	height : 2.5em;
 	outline : 0;
 	width : 2.5em;
+}
+
+.scroll-button.disabled {
+	opacity : .1;
 }
 
 #scroll-down {
@@ -60,17 +56,11 @@
 
 #scroll-up {
 	background-image : url( 'circled-arrow-up.png' );
-}
-
-#timeline-title {
-	color : #fff;
-	display : block;
-	font-size : 1.15em;
+	margin-bottom : .5em;
 }
 
 #timeline-entries-container {
 	background-color : #222;
-	border : .1em solid #ff0000; /* remove */
 	position : relative;
 }
 
@@ -126,3 +116,32 @@
 	right : 0;
 	top : 0;
 }
+
+#timeline-title {
+	color : #fff;
+	display : block;
+	font-size : 1.15em;
+}
+
+@media only screen and ( min-width : 50em ) {
+.scroll-button {
+	height : 3.5em;
+	width : 3.5em;
+}
+
+#timeline-entries {
+	right : 4em;
+}
+
+.timeline-entry-description {
+	font-size : 1em;
+}
+
+.timeline-entry-year {
+	font-size : 1.5em;
+}
+
+#timeline-heading {
+	font-size : 1.25em;
+}
+} /* end of min-width : 50em */
