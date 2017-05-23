@@ -58,7 +58,7 @@ const HistoryOfPhilanthropy = ( function() {
 					$( window ).trigger( 'resize' );
 				} )
 				.catch( () => {
-					console.log( 'error loading html' );
+					handleError( new Error( 'Error loading html.' ) );
 				} );
 		}
 	}
@@ -80,8 +80,10 @@ const HistoryOfPhilanthropy = ( function() {
 
 		const entryIndex = entryIds.indexOf( entryId );
 		const entryPosition = $entry.position();
+		const newScrollTop = Math.floor( 
+			entryPosition.top + $timelineEntries.scrollTop() );
 		const scrollDuration = _calculateScrollDuration(
-			entryPosition.top - $timelineEntries.scrollTop()
+			newScrollTop - $timelineEntries.scrollTop()
 		);
 
 		if ( entryIndex === entryIds.length - 1 ) {
@@ -97,7 +99,7 @@ const HistoryOfPhilanthropy = ( function() {
 		}
 
 		$timelineEntries.animate( {
-			scrollTop : Math.floor( entryPosition.top ),
+			scrollTop : newScrollTop,
 		}, scrollDuration );
 
 		function _calculateScrollDuration( pixelMoveAmount ) {
