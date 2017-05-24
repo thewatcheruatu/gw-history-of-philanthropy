@@ -49,7 +49,7 @@ body.active-overlay {
 #history-of-philanthropy header {
 	background-color : #000;
 	border-bottom: .2em solid #fff;
-	padding : 1em 1.5em;
+	padding : .5em 1.5em;
 }
 
 #hop-lightbox-overlay {
@@ -75,26 +75,28 @@ body.active-overlay #hop-lightbox-overlay {
 }
 
 #lightbox-toggle.pop-out {
-	background-image : url( 'pop-out-icon.png' );
+	background-image : url( pop-out-icon.png );
 }
 
 #lightbox-toggle.pop-in {
-	background-image : url( 'pop-in-icon.png' );
+	background-image : url( pop-in-icon.png );
 }
 
 #timeline-heading {
 	color : #e64343;
 	font-size : 1em;
+	font-weight : normal;
+	line-height : 1.25;
 	margin : 0;
 	text-transform : uppercase;
 }
 
 #scroll-down {
-	background-image : url( 'circled-arrow-down.png' );
+	background-image : url( circled-arrow-down.png );
 }
 
 #scroll-up {
-	background-image : url( 'circled-arrow-up.png' );
+	background-image : url( circled-arrow-up.png );
 	margin-bottom : .5em;
 }
 
@@ -125,6 +127,7 @@ body.active-overlay #hop-lightbox-overlay {
 	background-position : center center;
 	background-size : cover;
 	height : 100%;
+	overflow : auto;
 }
 
 #timeline-entries ul {
@@ -190,10 +193,10 @@ body.active-overlay #hop-lightbox-overlay {
 }
 
 .timeline-entry-year {
-	font-size : 1.5em;
+	font-size : 1.75em;
 }
 
 #timeline-heading {
-	font-size : 1.25em;
+	font-size : 1.5em;
 }
 } /* end of min-width : 50em */

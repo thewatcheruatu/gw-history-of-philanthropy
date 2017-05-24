@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
+
+/* 
+ * I'm separating a few things here just for resource loading purposes
+ * i.e., I want the main styles to load before any web fonts
+**/
+
+#history-of-philanthropy {
+	font-family : 'Roboto Condensed', sans-serif;
+}

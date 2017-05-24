@@ -50,6 +50,7 @@ const HistoryOfPhilanthropy = ( function() {
 				);
 			}
 			_loadStylesheet( path + 'style.css' );
+			_loadStylesheet( path + 'typography.css' );
 			_loadHtml( $hopContainer,  path + 'container.html' )
 				.then( () => {
 					$timelineEntries = $( '#timeline-entries' );
@@ -103,16 +104,18 @@ const HistoryOfPhilanthropy = ( function() {
 
 	function lightboxToggle() {
 		if ( $( 'body' ).hasClass( 'active-overlay' ) ) {
-			return lightboxClose();
+			lightboxClose();
+		} else {
+			lightboxOpen();
 		}
-		lightboxOpen();
+		scrollToCurrent();
+	}
+
+	function scrollToCurrent() {
+		scrollToEntry( currentEntryId );
 	}
 
 	function scrollToEntry( entryId ) {
-		if ( entryId === currentEntryId ) {
-			return;
-		}
-
 		const $entry = $( '#' + entryId );
 		if ( ! $entry.length ) {
 			handleError(
@@ -271,12 +274,10 @@ const HistoryOfPhilanthropy = ( function() {
 					new Error( 'Could not find thing.' )
 				);
 			}
-			const frag = document.createDocumentFragment();
 			$.get( url, {}, ( data ) => {
 				if ( typeof dataProcessor === 'function' ) {
 					const div = document.createElement( 'div' );
 					div.innerHTML = data;
-					frag.appendChild( div );
 					dataProcessor( $( div ) );
 					thing.html( div.innerHTML );
 				} else {
@@ -284,11 +285,6 @@ const HistoryOfPhilanthropy = ( function() {
 				}
 				resolve();
 			} );
-			/*
-			thing.load( url, () => {
-				resolve();
-			} );
-			*/
 		} );
 	}
 
