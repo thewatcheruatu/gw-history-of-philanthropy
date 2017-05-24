@@ -5,20 +5,20 @@ const HistoryOfPhilanthropy = ( function() {
 	//const path = '';
 	const path = 'https://growlfrequency.com/work/gw-history-of-philanthropy/';
 	const imagePath = 'http://gwalumni.org/projects/history-of-philanthropy/images/';
+	let $; // jQuery
+	let $hopContainer; // all app HTML, id='history-of-philanthropy'
+	let $timelineEntries; // unordered list, id='timeline-entries'
 	let currentEntryId;
-	let entryIds = [];
+	let entryIds;
 	let initialized;
-	let $;
-	let $container;
-	let $timelineEntries;
+	let resizingTimeout;
+	let widthToHeight;
 
+	entryIds = [];
 	initialized = false;
 
 	function adjustLayout() {
-		const width = $timelineEntries.outerWidth();
-		const height = Math.round( width * .6 );
-
-		//$timelineEntries.children( 'li' ).css( 'height', height + 'px' );
+		_ensureScreenFit();
 	}
 
 	function init( dependencies ) {
@@ -43,14 +43,14 @@ const HistoryOfPhilanthropy = ( function() {
 
 		function _docReady() {
 			initialized = true;
-			$container = $( '#history-of-philanthropy' );
-			if ( ! $container.length ) {
+			$hopContainer = $( '#history-of-philanthropy' );
+			if ( ! $hopContainer.length ) {
 				return _handleError( 
 					new Error( 'Did not find #history-of-philanthropy container.' ) 
 				);
 			}
 			_loadStylesheet( path + 'style.css' );
-			_loadHtml( $container,  path + 'container.html' )
+			_loadHtml( $hopContainer,  path + 'container.html' )
 				.then( () => {
 					$timelineEntries = $( '#timeline-entries' );
 					_attachEventHandlers();
@@ -86,7 +86,26 @@ const HistoryOfPhilanthropy = ( function() {
 		}
 
 		$body.addClass( 'active-overlay' );
-		$container.detach().appendTo( $overlay );
+		$hopContainer.before( '<div id="history-of-philanthropy-placeholder"></div>' );
+		$hopContainer.detach().appendTo( $overlay );
+		$( '#lightbox-toggle' ).removeClass( 'pop-out' ).addClass( 'pop-in' );
+	}
+
+	function lightboxClose() {
+		const $body = $( 'body' );
+		const $placeholder = $( '#history-of-philanthropy-placeholder' );
+		console.log( $placeholder );
+		$hopContainer.detach().insertAfter( $placeholder );
+		$placeholder.remove();
+		$body.removeClass( 'active-overlay' );
+		$( '#lightbox-toggle' ).removeClass( 'pop-in' ).addClass( 'pop-out' );
+	}
+
+	function lightboxToggle() {
+		if ( $( 'body' ).hasClass( 'active-overlay' ) ) {
+			return lightboxClose();
+		}
+		lightboxOpen();
 	}
 
 	function scrollToEntry( entryId ) {
@@ -178,12 +197,20 @@ const HistoryOfPhilanthropy = ( function() {
 	function _attachEventHandlers() {
 		$( window )
 			.on( 'resize', () => {
-				adjustLayout();
-			} );
+				if ( resizingTimeout ) {
+					clearTimeout( resizingTimeout );
+				}
+				resizingTimeout = setTimeout( () => {
+					adjustLayout();
+					clearTimeout( resizingTimeout );
+					resizingTimeout = null;
+				}, 100 );
+			} )
+			.trigger( 'resize' );
 
 		$( '#lightbox-toggle' ).on( 'click', ( e ) => {
 			e.preventDefault();
-			lightboxOpen();
+			lightboxToggle();
 		} );
 
 		$( '#scroll-down' ).on( 'click', ( e ) => {
@@ -195,6 +222,33 @@ const HistoryOfPhilanthropy = ( function() {
 			e.preventDefault();
 			scrollInDirection( 'backward' );
 		} );
+	}
+
+	function _calculateWidthToHeight() {
+		const width = $hopContainer.outerWidth();
+		const height = $hopContainer.outerHeight();
+
+		widthToHeight = Math.floor( width / height * 10 ) / 10;
+	}
+
+	function _ensureScreenFit() {
+		const screenWidth = $( window ).width();
+		const screenHeight = $( window ).height();
+		const appWidth = $hopContainer.outerWidth();
+		const appHeight = $hopContainer.outerHeight();
+		
+		//if ( widthToHeight === undefined ) {
+			_calculateWidthToHeight();
+		//}
+
+		if ( appHeight < screenHeight ) {
+			$hopContainer.css( 'width', '' );
+			return;
+		}
+
+		const newAppWidth = Math.max( 480, Math.floor( screenHeight * widthToHeight ) );
+
+		$hopContainer.css( 'width', newAppWidth + 'px' );
 	}
 
 	function _handleError( error ) {
