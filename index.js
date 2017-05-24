@@ -2,21 +2,23 @@
 
 const HistoryOfPhilanthropy = ( function() {
 	//const path = 'http://gwalumni.org/projects/history-of-philanthropy/';
-	const path = '';
+	//const path = '';
+	const path = 'https://growlfrequency.com/work/gw-history-of-philanthropy/';
+	const imagePath = 'http://gwalumni.org/projects/history-of-philanthropy/images/';
+	let $; // jQuery
+	let $hopContainer; // all app HTML, id='history-of-philanthropy'
+	let $timelineEntries; // unordered list, id='timeline-entries'
 	let currentEntryId;
-	let entryIds = [];
+	let entryIds;
 	let initialized;
-	let $;
-	let $container;
-	let $timelineEntries;
+	let resizingTimeout;
+	let widthToHeight;
 
+	entryIds = [];
 	initialized = false;
 
 	function adjustLayout() {
-		const width = $timelineEntries.outerWidth();
-		const height = Math.round( width * .6 );
-
-		//$timelineEntries.children( 'li' ).css( 'height', height + 'px' );
+		_ensureScreenFit();
 	}
 
 	function init( dependencies ) {
@@ -41,14 +43,14 @@ const HistoryOfPhilanthropy = ( function() {
 
 		function _docReady() {
 			initialized = true;
-			$container = $( '#history-of-philanthropy' );
-			if ( ! $container.length ) {
+			$hopContainer = $( '#history-of-philanthropy' );
+			if ( ! $hopContainer.length ) {
 				return _handleError( 
 					new Error( 'Did not find #history-of-philanthropy container.' ) 
 				);
 			}
 			_loadStylesheet( path + 'style.css' );
-			_loadHtml( $container,  path + 'container.html' )
+			_loadHtml( $hopContainer,  path + 'container.html' )
 				.then( () => {
 					$timelineEntries = $( '#timeline-entries' );
 					_attachEventHandlers();
@@ -56,11 +58,54 @@ const HistoryOfPhilanthropy = ( function() {
 				} )
 				.then( () => {
 					$( window ).trigger( 'resize' );
+					/*
+					 * Putting this in a timeout, because there was a race condition with
+					 * the stylesheet load that sometimes caused the initial scroll to
+					 * be off by a small amount. I don't like it.
+					 * TODO - maybe
+					**/
+					setTimeout( () => {
+						scrollToEntry( entryIds[0] );
+					}, 200 );
 				} )
 				.catch( () => {
-					handleError( new Error( 'Error loading html.' ) );
+					_handleError( new Error( 'Error loading html.' ) );
 				} );
 		}
+	}
+
+	function lightboxOpen() {
+		const $body = $( 'body' );
+		let $overlay;
+
+		$overlay = $( '#hop-lightbox-overlay' );
+
+		if ( ! $overlay.length ) {
+			$overlay = $( '<div id="hop-lightbox-overlay"></div>' );
+			$body.append( $overlay );
+		}
+
+		$body.addClass( 'active-overlay' );
+		$hopContainer.before( '<div id="history-of-philanthropy-placeholder"></div>' );
+		$hopContainer.detach().appendTo( $overlay );
+		$( '#lightbox-toggle' ).removeClass( 'pop-out' ).addClass( 'pop-in' );
+	}
+
+	function lightboxClose() {
+		const $body = $( 'body' );
+		const $placeholder = $( '#history-of-philanthropy-placeholder' );
+		console.log( $placeholder );
+		$hopContainer.detach().insertAfter( $placeholder );
+		$placeholder.remove();
+		$body.removeClass( 'active-overlay' );
+		$( '#lightbox-toggle' ).removeClass( 'pop-in' ).addClass( 'pop-out' );
+	}
+
+	function lightboxToggle() {
+		if ( $( 'body' ).hasClass( 'active-overlay' ) ) {
+			return lightboxClose();
+		}
+		lightboxOpen();
 	}
 
 	function scrollToEntry( entryId ) {
@@ -152,8 +197,21 @@ const HistoryOfPhilanthropy = ( function() {
 	function _attachEventHandlers() {
 		$( window )
 			.on( 'resize', () => {
-				adjustLayout();
-			} );
+				if ( resizingTimeout ) {
+					clearTimeout( resizingTimeout );
+				}
+				resizingTimeout = setTimeout( () => {
+					adjustLayout();
+					clearTimeout( resizingTimeout );
+					resizingTimeout = null;
+				}, 100 );
+			} )
+			.trigger( 'resize' );
+
+		$( '#lightbox-toggle' ).on( 'click', ( e ) => {
+			e.preventDefault();
+			lightboxToggle();
+		} );
 
 		$( '#scroll-down' ).on( 'click', ( e ) => {
 			e.preventDefault();
@@ -164,6 +222,33 @@ const HistoryOfPhilanthropy = ( function() {
 			e.preventDefault();
 			scrollInDirection( 'backward' );
 		} );
+	}
+
+	function _calculateWidthToHeight() {
+		const width = $hopContainer.outerWidth();
+		const height = $hopContainer.outerHeight();
+
+		widthToHeight = Math.floor( width / height * 10 ) / 10;
+	}
+
+	function _ensureScreenFit() {
+		const screenWidth = $( window ).width();
+		const screenHeight = $( window ).height();
+		const appWidth = $hopContainer.outerWidth();
+		const appHeight = $hopContainer.outerHeight();
+		
+		//if ( widthToHeight === undefined ) {
+			_calculateWidthToHeight();
+		//}
+
+		if ( appHeight < screenHeight ) {
+			$hopContainer.css( 'width', '' );
+			return;
+		}
+
+		const newAppWidth = Math.max( 480, Math.floor( screenHeight * widthToHeight ) );
+
+		$hopContainer.css( 'width', newAppWidth + 'px' );
 	}
 
 	function _handleError( error ) {
@@ -177,24 +262,39 @@ const HistoryOfPhilanthropy = ( function() {
 			.appendTo( 'head' );
 	}
 
-	function _loadHtml( thing, url ) {
+	function _loadHtml( thing, url, dataProcessor ) {
 		thing = typeof thing === 'string' ? $( thing ) : thing;
-		if ( ! thing.length ) {
-			_handleError(
-				new Error( 'Could not find thing.' )
-			);
-		}
 
-		return new Promise( ( resolve ) => {
+		return new Promise( ( resolve, reject ) => {
+			if ( ! thing.length ) {
+				return reject(
+					new Error( 'Could not find thing.' )
+				);
+			}
+			const frag = document.createDocumentFragment();
+			$.get( url, {}, ( data ) => {
+				if ( typeof dataProcessor === 'function' ) {
+					const div = document.createElement( 'div' );
+					div.innerHTML = data;
+					frag.appendChild( div );
+					dataProcessor( $( div ) );
+					thing.html( div.innerHTML );
+				} else {
+					thing.html( data );
+				}
+				resolve();
+			} );
+			/*
 			thing.load( url, () => {
 				resolve();
 			} );
+			*/
 		} );
 	}
 
 	function _loadTimelineEntries() {
 		return new Promise( ( resolve, reject ) => {
-			_loadHtml( $timelineEntries, path + 'timeline-gw.html' )
+			_loadHtml( $timelineEntries, path + 'timeline-gw.html', _processEntries )
 				.then( () => {
 					entryIds = [];
 					$timelineEntries.children( 'li' ).each( ( i, el ) => {
@@ -204,6 +304,15 @@ const HistoryOfPhilanthropy = ( function() {
 				} )
 				.catch( reject );
 		} );
+
+		function _processEntries( $html ) {
+			$html.children( 'li' ).each( ( i, el ) => {
+				let bg;
+				bg = $( el ).css( 'background-image' );
+				bg = bg.replace( /images\//g, imagePath );
+				$( el ).css( 'background-image', bg );
+			} );
+		}
 	}
 
 

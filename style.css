@@ -1,8 +1,15 @@
+/* Get some resets out of the way */
 #history-of-philanthropy button,
 #history-of-philanthropy header,
+#history-of-philanthropy h1,
 #history-of-philanthropy li,
 #history-of-philanthropy ul {
 	box-sizing : border-box;
+	line-height : 1.5;
+}
+
+body.active-overlay {
+	overflow : hidden;
 }
 
 .aural {
@@ -14,25 +21,7 @@
 	width : 1px;
 }
 
-#history-of-philanthropy {
-	font-family : sans-serif;
-	max-width : 50em;
-}
-
-#history-of-philanthropy header {
-	background-color : #000;
-	border-bottom: .2em solid #fff;
-	color : #e64343;
-	padding : 1em 1.5em;
-}
-
-#timeline-heading {
-	font-size : 1em;
-	margin : 0;
-	text-transform : uppercase;
-}
-
-.scroll-button {
+.control-panel-button {
 	background-color : transparent;
 	background-position : center center;
 	background-repeat : no-repeat;
@@ -42,12 +31,62 @@
 	display : block;
 	font-size : 1em;
 	height : 2.5em;
+	margin : 0;
 	outline : 0;
 	width : 2.5em;
 }
 
-.scroll-button.disabled {
+.control-panel-button.disabled {
 	opacity : .1;
+}
+
+#history-of-philanthropy {
+	font-family : sans-serif;
+	max-width : 60em;
+	width : 100%;
+}
+
+#history-of-philanthropy header {
+	background-color : #000;
+	border-bottom: .2em solid #fff;
+	padding : 1em 1.5em;
+}
+
+#hop-lightbox-overlay {
+	align-items : center;
+	background-color : rgba( 50, 50, 50, .8 );
+	bottom : 0;
+	left : 0;
+	display : none;
+	justify-content : center;
+	position : fixed;
+	right : 0;
+	top : 0;
+	z-index : 10;
+}
+
+body.active-overlay #hop-lightbox-overlay {
+	display : flex;
+	opacity : 1.0;
+}
+
+#lightbox-toggle {
+	background-size : 90%;
+}
+
+#lightbox-toggle.pop-out {
+	background-image : url( 'pop-out-icon.png' );
+}
+
+#lightbox-toggle.pop-in {
+	background-image : url( 'pop-in-icon.png' );
+}
+
+#timeline-heading {
+	color : #e64343;
+	font-size : 1em;
+	margin : 0;
+	text-transform : uppercase;
 }
 
 #scroll-down {
@@ -95,26 +134,39 @@
 }
 
 .timeline-entry-year {
+	background-color : rgba( 0, 0, 0, 0.5 );
 	color : #fff;
 	font-size : 1.25em;
 	padding : .25em .75em;
 }
 
 .timeline-entry-description {
-	background-color : rgba( 256, 256, 256, 0.6 );
+	background-color : rgba( 256, 256, 256, 0.8 );
 	font-size : .9em;
+	overflow : auto;
 	padding : .5em .75em;
 }
 
-#timeline-entries-scroll-controls {
+#timeline-entries-control-panel {
 	bottom : 0;
 	display : flex;
 	flex-direction : column;
-	justify-content : center;
+	justify-content : flex-start;
 	padding : 0 .2em;
 	position : absolute;
 	right : 0;
 	top : 0;
+}
+
+#timeline-entries-control-panel-ancillary-controls {
+	height : 20%;
+}
+
+#timeline-entries-scroll-controls {
+	display : flex;
+	flex-direction : column;
+	height : 80%;
+	justify-content : center;
 }
 
 #timeline-title {
@@ -124,7 +176,7 @@
 }
 
 @media only screen and ( min-width : 50em ) {
-.scroll-button {
+.control-panel-button {
 	height : 3.5em;
 	width : 3.5em;
 }
