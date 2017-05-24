@@ -58,11 +58,35 @@ const HistoryOfPhilanthropy = ( function() {
 				} )
 				.then( () => {
 					$( window ).trigger( 'resize' );
+					/*
+					 * Putting this in a timeout, because there was a race condition with
+					 * the stylesheet load that sometimes caused the initial scroll to
+					 * be off by a small amount. I don't like it.
+					 * TODO - maybe
+					**/
+					setTimeout( () => {
+						scrollToEntry( entryIds[0] );
+					}, 200 );
 				} )
 				.catch( () => {
 					_handleError( new Error( 'Error loading html.' ) );
 				} );
 		}
+	}
+
+	function lightboxOpen() {
+		const $body = $( 'body' );
+		let $overlay;
+
+		$overlay = $( '#hop-lightbox-overlay' );
+
+		if ( ! $overlay.length ) {
+			$overlay = $( '<div id="hop-lightbox-overlay"></div>' );
+			$body.append( $overlay );
+		}
+
+		$body.addClass( 'active-overlay' );
+		$container.detach().appendTo( $overlay );
 	}
 
 	function scrollToEntry( entryId ) {
@@ -157,6 +181,11 @@ const HistoryOfPhilanthropy = ( function() {
 				adjustLayout();
 			} );
 
+		$( '#lightbox-toggle' ).on( 'click', ( e ) => {
+			e.preventDefault();
+			lightboxOpen();
+		} );
+
 		$( '#scroll-down' ).on( 'click', ( e ) => {
 			e.preventDefault();
 			scrollInDirection( 'forward' );
@@ -223,7 +252,6 @@ const HistoryOfPhilanthropy = ( function() {
 		} );
 
 		function _processEntries( $html ) {
-			console.log( 'processing' );
 			$html.children( 'li' ).each( ( i, el ) => {
 				let bg;
 				bg = $( el ).css( 'background-image' );
