@@ -23,15 +23,17 @@ const HistoryOfPhilanthropy = ( function() {
 
 	// Timeline tracking-related
 	let currentEntryId; // String
-	let entryIds; // Array
+	let entryIds = []; // Array
 
 	// General App Globals
+	let errorLog = []; // Array
 	let initialized; // Bool
 	let resizingTimeout;
 	let widthToHeight; // Percentage representation of app aspect ratio
 
 	function adjustLayout() {
 		_ensureScreenFit();
+		scrollToCurrent();
 	}
 
 	function init( dependencies ) {
@@ -53,7 +55,6 @@ const HistoryOfPhilanthropy = ( function() {
 		dependencies.env = dependencies.env || 'prod';
 		_setEnvironmentVariables();
 
-		entryIds = [];
 		initialized = true;
 
 		// Basic validity checks out of the way. Can make the content now.
@@ -122,7 +123,6 @@ const HistoryOfPhilanthropy = ( function() {
 	function lightboxClose() {
 		const $body = $( 'body' );
 		const $placeholder = $( '#history-of-philanthropy-placeholder' );
-		console.log( $placeholder );
 		$appContainer.detach().insertAfter( $placeholder );
 		$placeholder.remove();
 		$body.removeClass( 'active-overlay' );
@@ -145,7 +145,7 @@ const HistoryOfPhilanthropy = ( function() {
 	function scrollToEntry( entryId ) {
 		const $entry = $( '#' + entryId );
 		if ( ! $entry.length ) {
-			handleError(
+			_handleError(
 				new Error( 'Cannot scroll to invalid timeline entry.' )
 			);
 			return;
@@ -282,7 +282,8 @@ const HistoryOfPhilanthropy = ( function() {
 	}
 
 	function _handleError( error ) {
-		console.log( error.message );
+		// Just swallow these up silently - we can check with debugger
+		errorLog.push( error.message );
 	}
 
 	function _loadStylesheet( url ) {
@@ -323,6 +324,7 @@ const HistoryOfPhilanthropy = ( function() {
 					$timelineEntries.children( 'li' ).each( ( i, el ) => {
 						entryIds.push( $( el ).attr( 'id' ) );
 					} );
+					currentEntryId = entryIds[0];
 					resolve();
 				} )
 				.catch( reject );
