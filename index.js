@@ -11,7 +11,8 @@ const HistoryOfPhilanthropy = ( function() {
 			path : 'https://growlfrequency.com/work/gw-history-of-philanthropy/',
 			imagePath : 'https://growlfrequency.com/work/gw-history-of-philanthropy/images/',
 		},
-	}
+	};
+
 	// jQuery objects
 	let $; // jQuery
 	let $appContainer; // all app HTML, id='history-of-philanthropy'
@@ -254,22 +255,13 @@ const HistoryOfPhilanthropy = ( function() {
 		} );
 	}
 
-	function _calculateWidthToHeight() {
-		const width = $appContainer.outerWidth();
-		const height = $appContainer.outerHeight();
-
-		widthToHeight = Math.floor( width / height * 10 ) / 10;
-	}
-
 	function _ensureScreenFit() {
 		const screenWidth = $( window ).width();
 		const screenHeight = $( window ).height();
 		const appWidth = $appContainer.outerWidth();
 		const appHeight = $appContainer.outerHeight();
 		
-		//if ( widthToHeight === undefined ) {
-			_calculateWidthToHeight();
-		//}
+		_calculateWidthToHeight();
 
 		if ( appHeight < screenHeight ) {
 			$appContainer.css( 'width', '' );
@@ -278,7 +270,16 @@ const HistoryOfPhilanthropy = ( function() {
 
 		const newAppWidth = Math.max( 480, Math.floor( screenHeight * widthToHeight ) );
 
-		$appContainer.css( 'width', newAppWidth + 'px' );
+		$appContainer.css( 'width', Math.min( screenWidth, newAppWidth ) + 'px' );
+
+		/*
+		 * Moved this inside _ensureScreenFit, because I don't think I will
+		 * need it anywhere else. Initially, I thought I might.
+		**/
+		function _calculateWidthToHeight() {
+			widthToHeight = Math.floor( appWidth / appHeight * 10 ) / 10;
+		}
+
 	}
 
 	function _handleError( error ) {
