@@ -1,11 +1,14 @@
 /* Get some resets out of the way */
+#history-of-philanthropy {
+	line-height : 1.5;
+}
+
 #history-of-philanthropy button,
 #history-of-philanthropy header,
 #history-of-philanthropy h1,
 #history-of-philanthropy li,
 #history-of-philanthropy ul {
 	box-sizing : border-box;
-	line-height : 1.5;
 }
 
 body.active-overlay {
@@ -42,7 +45,7 @@ body.active-overlay {
 
 #history-of-philanthropy {
 	font-family : sans-serif;
-	max-width : 60em;
+	max-width : 80em;
 	width : 100%;
 }
 
@@ -144,7 +147,7 @@ body.active-overlay #hop-lightbox-overlay {
 }
 
 .timeline-entry-description {
-	background-color : rgba( 256, 256, 256, 0.8 );
+	background-color : rgba( 256, 256, 256, 0.9 );
 	font-size : .9em;
 	overflow : auto;
 	padding : .5em .75em;
@@ -200,3 +203,9 @@ body.active-overlay #hop-lightbox-overlay {
 	font-size : 1.5em;
 }
 } /* end of min-width : 50em */
+
+@media only screen and ( min-width : 90em ) {
+	#timeline-entries {
+		font-size : 1.2em;
+	}
+} /* end of min-width : 90em

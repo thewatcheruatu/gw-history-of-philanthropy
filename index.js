@@ -1,21 +1,34 @@
 'use strict';
 
 const HistoryOfPhilanthropy = ( function() {
-	//const path = 'http://gwalumni.org/projects/history-of-philanthropy/';
-	//const path = '';
-	const path = 'https://growlfrequency.com/work/gw-history-of-philanthropy/';
-	const imagePath = 'http://gwalumni.org/projects/history-of-philanthropy/images/';
-	let $; // jQuery
-	let $hopContainer; // all app HTML, id='history-of-philanthropy'
-	let $timelineEntries; // unordered list, id='timeline-entries'
-	let currentEntryId;
-	let entryIds;
-	let initialized;
-	let resizingTimeout;
-	let widthToHeight;
+	const environments = {
+		prod : {
+			path : 'http://gwalumni.org/projects/history-of-philanthropy/',
+			imagePath : 'http://gwalumni.org/projects/history-of-philanthropy/images/',
+		},
 
-	entryIds = [];
-	initialized = false;
+		dev : {
+			path : 'https://growlfrequency.com/work/gw-history-of-philanthropy/',
+			imagePath : 'https://growlfrequency.com/work/gw-history-of-philanthropy/images/',
+		},
+	}
+	// jQuery objects
+	let $; // jQuery
+	let $appContainer; // all app HTML, id='history-of-philanthropy'
+	let $timelineEntries; // unordered list, id='timeline-entries'
+
+	// Environment variables
+	let appPath;
+	let imagePath;
+
+	// Timeline tracking-related
+	let currentEntryId; // String
+	let entryIds; // Array
+
+	// General App Globals
+	let initialized; // Bool
+	let resizingTimeout;
+	let widthToHeight; // Percentage representation of app aspect ratio
 
 	function adjustLayout() {
 		_ensureScreenFit();
@@ -37,21 +50,25 @@ const HistoryOfPhilanthropy = ( function() {
 				new Error( 'jQuery is a required dependency.' ) 
 			);
 		}
+		dependencies.env = dependencies.env || 'prod';
+		_setEnvironmentVariables();
+
+		entryIds = [];
+		initialized = true;
 
 		// Basic validity checks out of the way. Can make the content now.
 		$( _docReady );
 
 		function _docReady() {
-			initialized = true;
-			$hopContainer = $( '#history-of-philanthropy' );
-			if ( ! $hopContainer.length ) {
+			$appContainer = $( '#history-of-philanthropy' );
+			if ( ! $appContainer.length ) {
 				return _handleError( 
 					new Error( 'Did not find #history-of-philanthropy container.' ) 
 				);
 			}
-			_loadStylesheet( path + 'style.css' );
-			_loadStylesheet( path + 'typography.css' );
-			_loadHtml( $hopContainer,  path + 'container.html' )
+			_loadStylesheet( appPath + 'style.css' );
+			_loadStylesheet( appPath + 'typography.css' );
+			_loadHtml( $appContainer,  appPath + 'container.html' )
 				.then( () => {
 					$timelineEntries = $( '#timeline-entries' );
 					_attachEventHandlers();
@@ -73,6 +90,16 @@ const HistoryOfPhilanthropy = ( function() {
 					_handleError( new Error( 'Error loading html.' ) );
 				} );
 		}
+
+		function _setEnvironmentVariables() {
+			let env;
+			
+			env = dependencies.env;
+			env = environments[env] ? env : 'prod';
+
+			appPath = environments[env].path;
+			imagePath = environments[env].imagePath;
+		}
 	}
 
 	function lightboxOpen() {
@@ -87,8 +114,8 @@ const HistoryOfPhilanthropy = ( function() {
 		}
 
 		$body.addClass( 'active-overlay' );
-		$hopContainer.before( '<div id="history-of-philanthropy-placeholder"></div>' );
-		$hopContainer.detach().appendTo( $overlay );
+		$appContainer.before( '<div id="history-of-philanthropy-placeholder"></div>' );
+		$appContainer.detach().appendTo( $overlay );
 		$( '#lightbox-toggle' ).removeClass( 'pop-out' ).addClass( 'pop-in' );
 	}
 
@@ -96,7 +123,7 @@ const HistoryOfPhilanthropy = ( function() {
 		const $body = $( 'body' );
 		const $placeholder = $( '#history-of-philanthropy-placeholder' );
 		console.log( $placeholder );
-		$hopContainer.detach().insertAfter( $placeholder );
+		$appContainer.detach().insertAfter( $placeholder );
 		$placeholder.remove();
 		$body.removeClass( 'active-overlay' );
 		$( '#lightbox-toggle' ).removeClass( 'pop-in' ).addClass( 'pop-out' );
@@ -228,8 +255,8 @@ const HistoryOfPhilanthropy = ( function() {
 	}
 
 	function _calculateWidthToHeight() {
-		const width = $hopContainer.outerWidth();
-		const height = $hopContainer.outerHeight();
+		const width = $appContainer.outerWidth();
+		const height = $appContainer.outerHeight();
 
 		widthToHeight = Math.floor( width / height * 10 ) / 10;
 	}
@@ -237,21 +264,21 @@ const HistoryOfPhilanthropy = ( function() {
 	function _ensureScreenFit() {
 		const screenWidth = $( window ).width();
 		const screenHeight = $( window ).height();
-		const appWidth = $hopContainer.outerWidth();
-		const appHeight = $hopContainer.outerHeight();
+		const appWidth = $appContainer.outerWidth();
+		const appHeight = $appContainer.outerHeight();
 		
 		//if ( widthToHeight === undefined ) {
 			_calculateWidthToHeight();
 		//}
 
 		if ( appHeight < screenHeight ) {
-			$hopContainer.css( 'width', '' );
+			$appContainer.css( 'width', '' );
 			return;
 		}
 
 		const newAppWidth = Math.max( 480, Math.floor( screenHeight * widthToHeight ) );
 
-		$hopContainer.css( 'width', newAppWidth + 'px' );
+		$appContainer.css( 'width', newAppWidth + 'px' );
 	}
 
 	function _handleError( error ) {
@@ -290,7 +317,7 @@ const HistoryOfPhilanthropy = ( function() {
 
 	function _loadTimelineEntries() {
 		return new Promise( ( resolve, reject ) => {
-			_loadHtml( $timelineEntries, path + 'timeline-gw.html', _processEntries )
+			_loadHtml( $timelineEntries, appPath + 'timeline-gw.html', _processEntries )
 				.then( () => {
 					entryIds = [];
 					$timelineEntries.children( 'li' ).each( ( i, el ) => {
@@ -305,7 +332,7 @@ const HistoryOfPhilanthropy = ( function() {
 			$html.children( 'li' ).each( ( i, el ) => {
 				let bg;
 				bg = $( el ).css( 'background-image' );
-				bg = bg.replace( /images\//g, imagePath );
+				bg = bg.replace( /(http.*?)?images\//g, imagePath );
 				$( el ).css( 'background-image', bg );
 			} );
 		}
